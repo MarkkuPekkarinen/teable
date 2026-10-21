@@ -925,7 +925,8 @@
       "editLink": "Bağlantıyı Düzenle",
       "linkText": "Bağlantı Metni",
       "enterUrl": "URL Girin"
-    }
+    },
+    "tooManyImages": "Tek seferde en fazla {{count}} görsel ekleyebilirsiniz"
   },
   "memberSelector": {
     "title": "Select Members",
@@ -1507,7 +1508,8 @@
     "pin": {
       "alreadyExists": "Favori zaten mevcut",
       "notFound": "Favori bulunamadı",
-      "anchorNotFound": "Favori bağlantı noktası bulunamadı"
+      "anchorNotFound": "Favori bağlantı noktası bulunamadı",
+      "targetNotFound": "Favorilere eklenecek öğe bulunamadı"
     },
     "trash": {
       "invalidResourceType": "Geçersiz kaynak türü",

@@ -28,6 +28,7 @@
       "@overridable/WorkFlowPanel": ["./features/app/automation/workflow-panel/WorkFlowPanel"],
       "@overridable/TableArchiveDialog": ["./features/app/blocks/archive/TableArchiveDialog"],
       "@overridable/TableImport": ["./features/app/blocks/import-table/TableImport"],
+      "@overridable/UserNavExtras": ["./features/app/components/user/UserNavExtras"],
       "@overridable/AddView": ["./features/app/blocks/table/table-header/AddView"],
       "@overridable/SettingDialog": ["./features/app/components/setting/SettingDialog"],
       "@overridable/DeleteAccountActions": [
@@ -35,6 +36,9 @@
       ],
       "@overridable/useSpaceDeleteCopy": [
         "./features/app/blocks/trash/space-delete-copy/useSpaceDeleteCopy"
+      ],
+      "@overridable/AccountDataExport": [
+        "./features/app/components/setting/account/data-export/AccountDataExport"
       ],
       "@teable/common-i18n": ["../../../packages/common-i18n/src/index"],
       "@teable/common-i18n/locales/*": ["../../../packages/common-i18n/src/locales/*"],

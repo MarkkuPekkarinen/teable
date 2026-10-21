@@ -933,7 +933,8 @@
       "editLink": "Редагувати посилання",
       "linkText": "Текст посилання",
       "enterUrl": "Введіть URL"
-    }
+    },
+    "tooManyImages": "За один раз можна додати не більше {{count}} зображень"
   },
   "memberSelector": {
     "title": "Виберіть учасників",
@@ -1515,7 +1516,8 @@
     "pin": {
       "alreadyExists": "Вибране вже існує",
       "notFound": "Вибране не знайдено",
-      "anchorNotFound": "Якір вибраного не знайдено"
+      "anchorNotFound": "Якір вибраного не знайдено",
+      "targetNotFound": "Елемент для додавання у вибране не знайдено"
     },
     "trash": {
       "invalidResourceType": "Недійсний тип ресурсу",

@@ -44,6 +44,10 @@ import {
   type IFieldOperationDeleteContext,
 } from '../ports/FieldOperationPlugin';
 import { ITableRepository } from '../ports/TableRepository';
+import {
+  NoopTableSchemaCoordination,
+  type ITableSchemaCoordination,
+} from '../ports/TableSchemaCoordination';
 import { v2CoreTokens } from '../ports/tokens';
 import { TraceSpan } from '../ports/TraceSpan';
 import {
@@ -78,9 +82,10 @@ type DeletionCleanupTableState = {
 
 @CommandHandler(DeleteFieldsCommand)
 @injectable()
-export class DeleteFieldsHandler
-  implements ICommandHandler<DeleteFieldsCommand, DeleteFieldsResult>
-{
+export class DeleteFieldsHandler implements ICommandHandler<
+  DeleteFieldsCommand,
+  DeleteFieldsResult
+> {
   constructor(
     @inject(v2CoreTokens.tableRepository)
     private readonly tableRepository: ITableRepository,
@@ -97,11 +102,33 @@ export class DeleteFieldsHandler
     @inject(v2CoreTokens.undoRedoService)
     private readonly undoRedoStackService: UndoRedoStackService,
     @inject(v2CoreTokens.fieldDeleteSnapshotSink)
-    private readonly fieldDeleteSnapshotSink: IFieldDeleteSnapshotSink
+    private readonly fieldDeleteSnapshotSink: IFieldDeleteSnapshotSink,
+    @inject(v2CoreTokens.tableSchemaCoordination)
+    private readonly tableSchemaCoordination: ITableSchemaCoordination = new NoopTableSchemaCoordination()
   ) {}
 
   @TraceSpan()
   async handle(
+    context: ExecutionContextPort.IExecutionContext,
+    command: DeleteFieldsCommand
+  ): Promise<Result<DeleteFieldsResult, DomainError>> {
+    const leaseResult = await this.tableSchemaCoordination.acquire(
+      context,
+      [command.tableId.toString()],
+      'exclusive'
+    );
+    if (leaseResult.isErr()) {
+      return err(leaseResult.error);
+    }
+    const lease = leaseResult.value;
+    try {
+      return await this.execute(context, command);
+    } finally {
+      await lease.release();
+    }
+  }
+
+  private async execute(
     context: ExecutionContextPort.IExecutionContext,
     command: DeleteFieldsCommand
   ): Promise<Result<DeleteFieldsResult, DomainError>> {
@@ -549,7 +576,7 @@ export class DeleteFieldsHandler
       if (result.isErr()) return err(result.error);
       if (result.value?.columnMeta) {
         specs.push(
-          TableUpdateViewColumnMetaSpec.create([
+          TableUpdateViewColumnMetaSpec.create(candidateTable, [
             {
               viewId: result.value.viewId,
               fieldId: result.value.fieldId,

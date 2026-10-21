@@ -262,6 +262,12 @@ export class FieldOpenApiV2Service {
     tableId: string,
     fieldId: string
   ): Promise<IGetViewFilterLinkRecordsVo> {
+    // The route only checks the host table; reading a cross-base foreign table
+    // through its link/conditionalRollup options needs read access there too.
+    const foreignTableId = await this.getFilterLinkForeignTableId(tableId, fieldId);
+    if (foreignTableId) {
+      await this.fieldSupplementService.assertForeignTableReadable(tableId, foreignTableId);
+    }
     const container = await this.v2ContainerService.getContainerForTable(tableId);
     const queryBus = container.resolve<IQueryBus>(v2CoreTokens.queryBus);
     const context = await this.v2ContextFactory.createContext(container);
@@ -296,6 +302,26 @@ export class FieldOpenApiV2Service {
       );
     }
     return parsed.data;
+  }
+
+  /** The foreignTableId a link / conditionalRollup field reads from, if any. */
+  private async getFilterLinkForeignTableId(
+    tableId: string,
+    fieldId: string
+  ): Promise<string | undefined> {
+    const field = await this.prismaService.field.findFirst({
+      where: { id: fieldId, tableId, deletedTime: null },
+      select: { options: true },
+    });
+    if (!field?.options) {
+      return undefined;
+    }
+    try {
+      const options = JSON.parse(field.options) as { foreignTableId?: unknown };
+      return typeof options.foreignTableId === 'string' ? options.foreignTableId : undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   private normalizeFieldVo(field: unknown): IFieldVo {
@@ -715,7 +741,7 @@ export class FieldOpenApiV2Service {
       columnMeta,
     } as Parameters<typeof isNotHiddenField>[1];
     const visibleFields =
-      query.filterHidden ?? true
+      (query.filterHidden ?? true)
         ? fields.filter((field) => isNotHiddenField(field.id, viewProjection))
         : fields;
 
@@ -1196,7 +1222,7 @@ export class FieldOpenApiV2Service {
     const rawFieldRo = fieldRo as Record<string, unknown>;
     const hasAiConfig = Object.hasOwn(rawFieldRo, 'aiConfig');
     const nextAiConfig = hasAiConfig
-      ? (rawFieldRo.aiConfig as IFieldVo['aiConfig'] | null | undefined) ?? null
+      ? ((rawFieldRo.aiConfig as IFieldVo['aiConfig'] | null | undefined) ?? null)
       : undefined;
     const currentTableId = getTableIdText(currentTable);
     const mappedField = await withV2Span(
@@ -3001,17 +3027,17 @@ export class FieldOpenApiV2Service {
       const shouldClearLimit =
         lookupOpts != null && !hasLimitPatch && currentLookupOpts?.limit !== undefined;
       const filter = hasFilterPatch
-        ? lookupOpts?.filter ?? opts.filter
+        ? (lookupOpts?.filter ?? opts.filter)
         : shouldClearFilter
           ? null
           : currentLookupOpts?.filter;
       const sort = hasSortPatch
-        ? lookupOpts?.sort ?? opts.sort
+        ? (lookupOpts?.sort ?? opts.sort)
         : shouldClearSort
           ? null
           : currentLookupOpts?.sort;
       const limit = hasLimitPatch
-        ? lookupOpts?.limit ?? opts.limit
+        ? (lookupOpts?.limit ?? opts.limit)
         : shouldClearLimit
           ? null
           : currentLookupOpts?.limit;
@@ -3063,8 +3089,8 @@ export class FieldOpenApiV2Service {
       const expression =
         newExpression && zodDefaultExpressions.has(newExpression) && currentExpression
           ? currentExpression
-          : newExpression ??
-            (!hasExpressionPatch && currentExpression != null ? currentExpression : undefined);
+          : (newExpression ??
+            (!hasExpressionPatch && currentExpression != null ? currentExpression : undefined));
 
       return {
         ...base,

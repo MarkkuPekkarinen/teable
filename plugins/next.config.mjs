@@ -46,19 +46,19 @@ const nextConfig = {
             contentSecurityPolicy: {
               defaultSrc: "'self'",
               styleSrc: ["'self'", "'unsafe-inline'"],
-              scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'https://www.clarity.ms'],
+              scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
               frameSrc: ["'self'", 'https:', 'http:'],
               connectSrc: ["'self'", 'https:'],
               mediaSrc: ["'self'", 'https:', 'http:', 'data:'],
               imgSrc: ["'self'", 'https:', 'http:', 'data:'],
-            } 
+            },
           }),
           {
             key: 'Content-Security-Policy',
-            value: 'frame-ancestors *'
+            value: 'frame-ancestors *',
           },
           { key: 'Cross-Origin-Opener-Policy', value: isProd ? 'same-origin' : 'unsafe-none' },
-          { key: 'Cross-Origin-Embedder-Policy', value: isProd ? 'same-origin' : 'unsafe-none' }
+          { key: 'Cross-Origin-Embedder-Policy', value: isProd ? 'same-origin' : 'unsafe-none' },
         ],
       },
     ];

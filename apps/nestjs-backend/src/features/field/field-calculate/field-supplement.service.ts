@@ -225,6 +225,15 @@ export class FieldSupplementService {
     await this.crossBaseLinkAccess.assertForeignTableReadable(tableId, foreignTableId);
   }
 
+  /**
+   * Reading a foreign table's records through a host field (e.g. a link field's
+   * filter-link options) is, across bases, not covered by the caller's role on
+   * the host base; require read access to the foreign table, as a write would.
+   */
+  async assertForeignTableReadable(tableId: string, foreignTableId: string): Promise<void> {
+    await this.crossBaseLinkAccess.assertForeignTableReadable(tableId, foreignTableId);
+  }
+
   private getForeignKeyFieldName(fieldId: string | undefined) {
     if (!fieldId) {
       return `__fk_rad${getRandomString(16)}`;
@@ -751,7 +760,7 @@ export class FieldSupplementService {
     // Request options may still carry formatting/showAs overrides. Source structural
     // options (e.g. select choices) must win over stale request options (T6332/T6208).
     const mirroredSourceOptions = config?.stripSourceFormulaExecutableOptions
-      ? stripLookupFormulaExecutableOptions(safeSourceOptions) ?? {}
+      ? (stripLookupFormulaExecutableOptions(safeSourceOptions) ?? {})
       : (safeSourceOptions as Record<string, unknown>);
 
     const sourceFormatting =
@@ -852,7 +861,7 @@ export class FieldSupplementService {
     const mergedLookupOptions =
       newLookupOptions && oldLookupOptions
         ? { ...oldLookupOptions, ...newLookupOptions }
-        : newLookupOptions ?? oldLookupOptions;
+        : (newLookupOptions ?? oldLookupOptions);
 
     return this.prepareLookupField(tableId, {
       ...oldFieldVo,

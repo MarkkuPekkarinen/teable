@@ -22,7 +22,11 @@ import {
   type ComputedUpdateOutboxConfig,
 } from '@teable/v2-adapter-table-repository-postgres';
 import { KeyvUndoRedoStore } from '@teable/v2-adapter-undo-redo-keyv';
-import { createV2NodePgContainer, type IV2NodePgContainerOptions } from '@teable/v2-container-node';
+import {
+  createV2NodePgContainer,
+  disposeV2NodePgContainer,
+  type IV2NodePgContainerOptions,
+} from '@teable/v2-container-node';
 import type {
   AttachmentValueDecoratorService,
   IAttachmentLookupService,
@@ -45,7 +49,10 @@ import { PinoLogger } from 'nestjs-pino';
 import { CacheService } from '../../cache/cache.service';
 import { IThresholdConfig, ThresholdConfig } from '../../configs/threshold.config';
 import { DataDbClientManager } from '../../global/data-db-client-manager.service';
-import type { IComputedOutboxMaintenanceTarget } from '../../global/data-db-client-manager.service';
+import type {
+  IComputedOutboxMaintenanceTarget,
+  IDataDbRoutingSnapshot,
+} from '../../global/data-db-client-manager.service';
 import {
   DataDbRuntimeCacheService,
   V2_CONTAINER_CACHE_NAMESPACE,
@@ -201,6 +208,17 @@ export class V2ContainerService implements OnApplicationBootstrap, OnModuleDestr
   async getContainerForSpace(spaceId: string): Promise<DependencyContainer> {
     const dataDb = await this.dataDbClientManager.getDataDatabaseForSpace(spaceId);
     return await this.getContainerForDataDb(
+      dataDb.cacheKey,
+      dataDb.connectionUrl ?? dataDb.url,
+      dataDb.internalSchema
+    );
+  }
+
+  async getContainerForRoutingSnapshot(
+    snapshot: IDataDbRoutingSnapshot
+  ): Promise<DependencyContainer> {
+    const dataDb = await this.dataDbClientManager.getDataDatabaseFromRoutingSnapshot(snapshot);
+    return this.getContainerForDataDb(
       dataDb.cacheKey,
       dataDb.connectionUrl ?? dataDb.url,
       dataDb.internalSchema
@@ -661,6 +679,14 @@ export class V2ContainerService implements OnApplicationBootstrap, OnModuleDestr
     this.claimConcurrencyUnregisters.delete(container);
     const poolLeases = this.poolLeases.get(container) ?? [];
     this.poolLeases.delete(container);
+    try {
+      await disposeV2NodePgContainer(container);
+    } catch (error) {
+      this.logger.error(
+        'Failed to dispose the V2 schema coordination pool',
+        error instanceof Error ? error.stack : String(error)
+      );
+    }
     const closers = Array.from(
       new Set([
         container.resolve<{ destroy(): Promise<void> }>(v2MetaDbTokens.db),

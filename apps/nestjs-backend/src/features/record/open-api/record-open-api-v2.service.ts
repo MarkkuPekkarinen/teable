@@ -159,6 +159,7 @@ import { throwV2Error } from '../../v2/v2-http-error';
 import { CrossBaseLinkAccessService } from '../cross-base-link-access.service';
 import { convertLinkPasteCellValue } from '../paste-link-cell-value';
 import { selectPasteCellValue } from '../select-paste-cell-value';
+import { normalizeEmptyDateComparison } from './record-filter-v2.mapper';
 
 const internalServerError = 'Internal server error';
 const invalidFilterCode = 'validation.invalid_filter';
@@ -2481,7 +2482,7 @@ export class RecordOpenApiV2Service {
     for (const item of items) {
       const fieldId = byId.has(item.fieldId)
         ? item.fieldId
-        : byName.get(item.fieldId) ?? byDbName.get(item.fieldId);
+        : (byName.get(item.fieldId) ?? byDbName.get(item.fieldId));
       if (!fieldId) {
         continue;
       }
@@ -2591,7 +2592,12 @@ export class RecordOpenApiV2Service {
     const hasOrder = Boolean(order);
     const fields = updateRecordRo.record.fields ?? {};
     const hasFields = Object.keys(fields).length > 0;
-    if (hasFields && updateRecordRo.typecast) {
+    // A cross-base link cell is read from (and its symmetric cell written into)
+    // the foreign table on every write, not only when typecast resolves titles:
+    // a structured id write (`typecast=false`) reaches it just the same, so the
+    // foreign-base read check must run regardless of typecast, not only on the
+    // typecast title-lookup branch the earlier cross-base fix covered.
+    if (hasFields) {
       await this.crossBaseLinkAccess.assertForeignTablesReadable(tableId, Object.keys(fields));
     }
 
@@ -2634,7 +2640,7 @@ export class RecordOpenApiV2Service {
 
       return result.body.data.record;
     }
-    throw new HttpException(internalServerError, HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new CustomHttpException('No fields to update', HttpErrorCode.VALIDATION_ERROR);
   }
 
   async buttonClick(
@@ -2756,9 +2762,10 @@ export class RecordOpenApiV2Service {
       'record.update.request.hasOrder': Boolean(updateRecordsRo.order),
       'record.update.request.typecast': updateRecordsRo.typecast ?? false,
     });
-    if (updateRecordsRo.typecast) {
-      await this.crossBaseLinkAccess.assertForeignTablesReadable(tableId, uniqueFieldIds);
-    }
+    // Cross-base link writes reach the foreign table regardless of typecast; see
+    // updateRecord. The check is a no-op when none of these fields point at
+    // another base.
+    await this.crossBaseLinkAccess.assertForeignTablesReadable(tableId, uniqueFieldIds);
 
     const container = await this.v2ContainerService.getContainerForTable(tableId);
     const commandBus = container.resolve<ICommandBus>(v2CoreTokens.commandBus);
@@ -2902,18 +2909,20 @@ export class RecordOpenApiV2Service {
     options?: { source?: RecordCreateSource }
   ): Promise<ICreateRecordsVo> {
     await this.assertTableRecordWritable(tableId);
-    const container = await this.v2ContainerService.getContainerForTable(tableId);
-    const commandBus = container.resolve<ICommandBus>(v2CoreTokens.commandBus);
-    const context = await this.v2ContextFactory.createContext(container);
 
     // Preserve v1's default typecast behavior (false) to ensure proper validation
     const records = createRecordsRo.records;
-    if (createRecordsRo.typecast) {
-      await this.crossBaseLinkAccess.assertForeignTablesReadable(
-        tableId,
-        records.flatMap((record) => Object.keys(record.fields ?? {}))
-      );
-    }
+    // Cross-base link writes reach the foreign table regardless of typecast; see
+    // updateRecord. Run the check before touching the foreign table; it is a
+    // no-op for same-base links.
+    await this.crossBaseLinkAccess.assertForeignTablesReadable(
+      tableId,
+      records.flatMap((record) => Object.keys(record.fields ?? {}))
+    );
+
+    const container = await this.v2ContainerService.getContainerForTable(tableId);
+    const commandBus = container.resolve<ICommandBus>(v2CoreTokens.commandBus);
+    const context = await this.v2ContextFactory.createContext(container);
 
     const result = await executeCreateRecordsEndpoint(
       context,
@@ -4459,6 +4468,11 @@ export class RecordOpenApiV2Service {
           // V1 drops incomplete non-checkbox filters such as `field is <empty input>`.
           return null;
         }
+      }
+
+      const emptyDateComparison = normalizeEmptyDateComparison(fieldMeta, operator, value);
+      if (emptyDateComparison) {
+        return { fieldId: node.fieldId, ...emptyDateComparison };
       }
 
       if (

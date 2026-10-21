@@ -94,7 +94,6 @@ const secureHeaders = createSecureHeaders({
             "'self'",
             "'unsafe-eval'",
             "'unsafe-inline'",
-            'https://www.clarity.ms',
             'https://*.posthog.com',
             'https://*.teable.io',
             'https://*.teable.ai',
@@ -111,7 +110,6 @@ const secureHeaders = createSecureHeaders({
             'https://*.teable.io',
             'https://*.teable.ai',
             'https://*.teable.cn',
-            'https://*.clarity.ms',
             'https://*.posthog.com',
             'https://apis.google.com',
           ],
@@ -244,9 +242,6 @@ const nextConfig = {
     ignoreBuildErrors: !NEXT_BUILD_ENV_TYPECHECK,
     tsconfigPath: NEXT_BUILD_ENV_TSCONFIG,
   },
-
-  // Note: eslint configuration is no longer supported in next.config.js
-  // Use ESLint CLI directly: npx eslint .
 
   // @link https://nextjs.org/docs/api-reference/next.config.js/rewrites
   async rewrites() {

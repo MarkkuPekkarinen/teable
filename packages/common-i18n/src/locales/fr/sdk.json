@@ -929,7 +929,8 @@
       "editLink": "Modifier le lien",
       "linkText": "Texte du lien",
       "enterUrl": "Entrez l'URL"
-    }
+    },
+    "tooManyImages": "Vous pouvez ajouter jusqu'à {{count}} images à la fois"
   },
   "memberSelector": {
     "title": "Select Members",
@@ -1511,7 +1512,8 @@
     "pin": {
       "alreadyExists": "Le favori existe déjà",
       "notFound": "Favori non trouvé",
-      "anchorNotFound": "Ancre de favori non trouvée"
+      "anchorNotFound": "Ancre de favori non trouvée",
+      "targetNotFound": "L'élément à ajouter aux favoris est introuvable"
     },
     "trash": {
       "invalidResourceType": "Type de ressource non valide",

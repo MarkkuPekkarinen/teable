@@ -929,7 +929,8 @@
       "editLink": "Enlace de edición",
       "linkText": "Texto de enlace",
       "enterUrl": "Ingrese URL"
-    }
+    },
+    "tooManyImages": "Puedes añadir hasta {{count}} imágenes a la vez"
   },
   "memberSelector": {
     "title": "Miembros seleccionados",
@@ -1511,7 +1512,8 @@
     "pin": {
       "alreadyExists": "El favorito ya existe",
       "notFound": "Favorito no encontrado",
-      "anchorNotFound": "Anclaje de favorito no encontrado"
+      "anchorNotFound": "Anclaje de favorito no encontrado",
+      "targetNotFound": "No se encontró el elemento para añadir a favoritos"
     },
     "trash": {
       "invalidResourceType": "Tipo de recurso no válido",

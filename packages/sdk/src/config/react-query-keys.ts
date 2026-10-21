@@ -61,7 +61,8 @@ export const ReactQueryKeys = {
     return parts;
   },
 
-  baseList: (spaceId: string) => ['base-list', spaceId] as const,
+  baseList: (spaceId: string, params?: { orderBy: 'personal' }) =>
+    params ? (['base-list', spaceId, params] as const) : (['base-list', spaceId] as const),
 
   pinList: () => ['pin-list'] as const,
 
@@ -69,7 +70,10 @@ export const ReactQueryKeys = {
 
   tableList: (baseId: string) => ['table-list', baseId] as const,
 
-  tableSeed: (tableId: string, viewId: string) => ['table-seed', tableId, viewId] as const,
+  // the seed's group structure and row set depend on the local collapse
+  // state, so that state is part of the identity
+  tableSeed: (tableId: string, viewId: string, collapsedGroupIds?: readonly string[]) =>
+    ['table-seed', tableId, viewId, collapsedGroupIds ?? null] as const,
 
   recordCommentCount: (tableId: string, recordId: string) =>
     ['record-comment-count', tableId, recordId] as const,
@@ -278,7 +282,9 @@ export const ReactQueryKeys = {
 
   getTaskStatusCollection: (tableId: string) => ['task-status-collection', tableId] as const,
 
-  chatHistory: (baseId: string) => ['chat-history', baseId] as const,
+  /** A base's chat list; a narrowed list (types, window) hangs under the same prefix so one invalidation refreshes every list. */
+  chatHistory: (baseId: string, params?: Record<string, unknown>) =>
+    params ? (['chat-history', baseId, params] as const) : (['chat-history', baseId] as const),
   chatArchivedList: () => ['chat-archived-list'] as const,
 
   chatMessage: (chatId: string) => ['chat-message', chatId] as const,

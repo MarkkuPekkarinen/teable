@@ -926,7 +926,8 @@
       "editLink": "Edit link",
       "linkText": "Link text",
       "enterUrl": "Enter URL"
-    }
+    },
+    "tooManyImages": "You can add up to {{count}} images at a time"
   },
   "memberSelector": {
     "title": "Select members",
@@ -1512,7 +1513,8 @@
     "pin": {
       "alreadyExists": "Pin already exists",
       "notFound": "Pin not found",
-      "anchorNotFound": "Pin anchor not found"
+      "anchorNotFound": "Pin anchor not found",
+      "targetNotFound": "The item to pin was not found"
     },
     "trash": {
       "invalidResourceType": "Invalid resource type",

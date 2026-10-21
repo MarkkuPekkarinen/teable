@@ -925,7 +925,8 @@
       "editLink": "Link bearbeiten",
       "linkText": "Link Text",
       "enterUrl": "URL eingeben"
-    }
+    },
+    "tooManyImages": "Du kannst höchstens {{count}} Bilder auf einmal hinzufügen"
   },
   "memberSelector": {
     "title": "Mitglieder auswählen",
@@ -1507,7 +1508,8 @@
     "pin": {
       "alreadyExists": "Favorit bereits vorhanden",
       "notFound": "Favorit nicht gefunden",
-      "anchorNotFound": "Anker-Favorit nicht gefunden"
+      "anchorNotFound": "Anker-Favorit nicht gefunden",
+      "targetNotFound": "Das Element für den Favoriten wurde nicht gefunden"
     },
     "trash": {
       "invalidResourceType": "Ungültiger Ressourcentyp",

@@ -921,7 +921,8 @@
       "editLink": "编辑",
       "linkText": "链接标题",
       "enterUrl": "输入链接"
-    }
+    },
+    "tooManyImages": "一次最多添加 {{count}} 张图片"
   },
   "memberSelector": {
     "title": "选择成员",
@@ -1507,7 +1508,8 @@
     "pin": {
       "alreadyExists": "收藏已存在",
       "notFound": "未找到收藏",
-      "anchorNotFound": "未找到锚点收藏"
+      "anchorNotFound": "未找到锚点收藏",
+      "targetNotFound": "未找到要收藏的内容"
     },
     "trash": {
       "invalidResourceType": "无效的资源类型",

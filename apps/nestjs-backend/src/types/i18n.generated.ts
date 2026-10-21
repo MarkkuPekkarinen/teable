@@ -1679,6 +1679,10 @@ export type I18nTranslations = {
                             "title": string;
                             "message": string;
                         };
+                        "accountExported": {
+                            "title": string;
+                            "message": string;
+                        };
                         "deactivated": {
                             "title": string;
                             "message": string;
@@ -2079,6 +2083,24 @@ export type I18nTranslations = {
             "reject": string;
             "policy": string;
             "settings": string;
+            "customize": string;
+            "customBody": string;
+            "save": string;
+            "alwaysOn": string;
+            "categories": {
+                "necessary": {
+                    "title": string;
+                    "description": string;
+                };
+                "analytics": {
+                    "title": string;
+                    "description": string;
+                };
+                "marketing": {
+                    "title": string;
+                    "description": string;
+                };
+            };
         };
     };
     "dashboard": {
@@ -3251,6 +3273,7 @@ export type I18nTranslations = {
                 "linkText": string;
                 "enterUrl": string;
             };
+            "tooManyImages": string;
         };
         "memberSelector": {
             "title": string;
@@ -3833,6 +3856,7 @@ export type I18nTranslations = {
                 "alreadyExists": string;
                 "notFound": string;
                 "anchorNotFound": string;
+                "targetNotFound": string;
             };
             "trash": {
                 "invalidResourceType": string;
@@ -4117,6 +4141,9 @@ export type I18nTranslations = {
             "title": string;
             "description": string;
             "empty": string;
+        };
+        "quickSearch": {
+            "placeholder": string;
         };
         "aiSetting": {
             "title": string;
@@ -6062,6 +6089,24 @@ export type I18nTranslations = {
                 "selectionColumn": string;
                 "selectionColumns": string;
                 "selectionColumnsNamed": string;
+                "selectionUnnamed": string;
+                "selectionRecords": string;
+                "selectionCellCount": string;
+                "selectionRecordType": string;
+                "selectionCellType": string;
+                "selectionDimensions": string;
+                "selectionUnavailable": string;
+                "selectionLegacyUnavailable": string;
+                "selectionSourceUnknown": string;
+                "selectionPreview": string;
+                "selectionSource": string;
+                "selectionSelectedFields": string;
+                "selectionIdentificationOnly": string;
+                "selectionEmpty": string;
+                "selectionOpenRecord": string;
+                "selectionPrevious": string;
+                "selectionNext": string;
+                "selectionPage": string;
             };
             "mention": {
                 "tables": string;
